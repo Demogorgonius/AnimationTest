@@ -211,10 +211,12 @@ class SecondModuleViewController: UIViewController {
         switch durationType {
         case .pause:
             pauseAnimationTimerStart = DispatchTime.now()
+            speedDimensionAnimationStart = DispatchTime.now()
             duration  = moveViewTime
         case .changeSpeed:
             speedDimensionAnimationStart = DispatchTime.now()
-            duration = moveViewTime*(newViewMoveTime*100/viewMoveTime)/100
+            pauseAnimationTimerStart = DispatchTime.now()
+            duration = moveViewTime
         case .normal:
             animationTimerStart = DispatchTime.now()
             lastPauseDuration = 0.0
@@ -224,7 +226,7 @@ class SecondModuleViewController: UIViewController {
             duration = viewMoveTime
         }
         
-        let fadeStart = moveViewTime - moveViewTime/4
+        var fadeStart = moveViewTime - moveViewTime/4
 
         viewAnimator = UIViewPropertyAnimator(duration: TimeInterval(duration), curve: .linear) { [weak self] in
             
@@ -233,6 +235,7 @@ class SecondModuleViewController: UIViewController {
             if durationType == .changeSpeed {
                 viewMoveTime = newViewMoveTime
             }
+            fadeStart = moveViewTime - moveViewTime/4
         }
         
         viewAlphaAnimation = UIViewPropertyAnimator(duration: TimeInterval(duration/4), curve: .easeIn) {[weak self] in
@@ -242,11 +245,13 @@ class SecondModuleViewController: UIViewController {
             if durationType == .changeSpeed {
                 viewMoveTime = newViewMoveTime
             }
+            fadeStart = moveViewTime - moveViewTime/4
         }
         
         viewAnimator?.addAnimations { [weak self] in
             
             guard let self = self else { return }
+//            let fadeStart = moveViewTime - moveViewTime/4
             viewAlphaAnimation?.startAnimation(afterDelay: fadeStart)
             
         }
@@ -373,16 +378,17 @@ extension SecondModuleViewController {
                 let time = end - start
                 let dTime = Double(time)
                 let secTime = dTime/1000000000.00
-                duration = viewMoveTime - (pastTimeChangeSpeedAnimation + secTime )
+                let speedDuration = viewMoveTime - (pastTimeChangeSpeedAnimation + secTime )
                 pastTimeChangeSpeedAnimation += secTime
+                duration = speedDuration*(newViewMoveTime*100/viewMoveTime)/100
+                
         
             }
             
             if pastTimeChangeSpeedAnimation == 0.0 {
                 pastTimeChangeSpeedAnimation += secTime
             }
-            
-            
+    
         case .normal:
             print("normal duration.")
         }
@@ -414,15 +420,20 @@ extension SecondModuleViewController {
     
     @objc func speedButtonTapped(_ sender: UIButton) {
         guard let viewAnimator = viewAnimator else { return }
-        if viewAnimator.isRunning == false { print(" animation is paused, can not change animation speed! "); return }
-        if viewMoveTime > 0.5 {
-            
-            newViewMoveTime = viewMoveTime - TimeInterval(0.5)
-            
-        } else {
-            
+        if viewAnimator.isRunning == false {
+            print(" animation is paused, can not change animation speed! ")
             return
-            
+        }
+        
+        if viewAlphaAnimation?.isRunning == true {
+            print("Can't change speed then alpha animation starting")
+            return
+        }
+        
+        if viewMoveTime > 0.5 {
+            newViewMoveTime = viewMoveTime - TimeInterval(0.5)
+        } else {
+            return
         }
         
         viewAnimator.stopAnimation(true)
@@ -434,17 +445,15 @@ extension SecondModuleViewController {
     
     @objc func speedReductionButtonTapped(_ sender: UIButton) {
         guard let viewAnimator = viewAnimator else { return }
-        if viewAnimator.isRunning == false { print(" animation is paused, can not change animation speed! "); return }
-        if viewMoveTime > 0.5 {
-            
-            newViewMoveTime = viewMoveTime + TimeInterval(0.5)
-            
-        } else {
-            
+        if viewAnimator.isRunning == false {
+            print(" animation is paused, can not change animation speed! ")
             return
-            
         }
-        
+        if viewAlphaAnimation?.isRunning == true {
+            print("Can't change speed then alpha animation starting")
+            return
+        }
+        newViewMoveTime = viewMoveTime + TimeInterval(0.5)
         viewAnimator.stopAnimation(true)
         viewAlphaAnimation?.stopAnimation(true)
         animationTimerEnd = DispatchTime.now()
