@@ -23,7 +23,6 @@ class SecondModuleViewController: UIViewController {
     var presenter: SecondModulePresenterProtocol!
     
     var viewAnimator, viewAlphaAnimation: UIViewPropertyAnimator?
-    
     //MARK: - Timer settings
     var timer: Timer?
     var totalTime = 30
@@ -38,6 +37,7 @@ class SecondModuleViewController: UIViewController {
     var speedButtonTap: Bool = false
     var lastPauseDuration: TimeInterval = 0.0
     var pastTimeChangeSpeedAnimation: TimeInterval = 0.0
+    var isAlphaAnimationStarting: Bool = false
     
     //MARK: - Services variables
     var isPause: Bool = false
@@ -207,53 +207,75 @@ class SecondModuleViewController: UIViewController {
         if viewPosition == nil {
             setViewPosition(colorView, colorLabel)
         }
-        
+        //MARK: - check duration 1
+//        print()
+
         switch durationType {
         case .pause:
             pauseAnimationTimerStart = DispatchTime.now()
             speedDimensionAnimationStart = DispatchTime.now()
+            //MARK: - check duration 2
             duration  = moveViewTime
+            
         case .changeSpeed:
             speedDimensionAnimationStart = DispatchTime.now()
             pauseAnimationTimerStart = DispatchTime.now()
+            //MARK: - check duration 3
             duration = moveViewTime
+            
         case .normal:
             animationTimerStart = DispatchTime.now()
             lastPauseDuration = 0.0
             pastTimeChangeSpeedAnimation = 0.0
             pauseAnimationTimerStart = nil
             speedDimensionAnimationStart = nil
+            //MARK: - check duration 4
             duration = viewMoveTime
+            
         }
         
         var fadeStart = moveViewTime - moveViewTime/4
+        
+        print("time of fade animation in main: \(fadeStart), moveViewTime: \(moveViewTime)")
 
         viewAnimator = UIViewPropertyAnimator(duration: TimeInterval(duration), curve: .linear) { [weak self] in
             
             guard let self = self else { return }
             self.moveViewToTop(self.colorView, self.colorLabel)
-            if durationType == .changeSpeed {
-                viewMoveTime = newViewMoveTime
-            }
-            fadeStart = moveViewTime - moveViewTime/4
+            
         }
         
         viewAlphaAnimation = UIViewPropertyAnimator(duration: TimeInterval(duration/4), curve: .easeIn) {[weak self] in
             
             guard let self = self else { return }
             self.fadeOutView(self.colorView, self.colorLabel)
-            if durationType == .changeSpeed {
-                viewMoveTime = newViewMoveTime
-            }
-            fadeStart = moveViewTime - moveViewTime/4
+
         }
         
         viewAnimator?.addAnimations { [weak self] in
             
             guard let self = self else { return }
-//            let fadeStart = moveViewTime - moveViewTime/4
+            if durationType == .changeSpeed {
+                viewMoveTime = newViewMoveTime
+            }
+            fadeStart = moveViewTime - moveViewTime/4
+            if fadeStart <= 0 {
+                fadeStart = 0.1
+                print("WARNING!!!!")
+            }
             viewAlphaAnimation?.startAnimation(afterDelay: fadeStart)
             
+        }
+        
+        viewAlphaAnimation?.addAnimations { [weak self] in
+            guard let self = self else { return }
+            DispatchQueue.main.asyncAfter(deadline: .now() + fadeStart) {
+                
+                // Запускается столько раз, сколько была нажата кнопка изменения скорости! ПРОВЕРИТЬ!!!
+                print("change isAlphaAnimationStarting on true!!!")
+                self.isAlphaAnimationStarting = true
+                
+            }
         }
         
         viewAlphaAnimation?.addCompletion { [weak self] _ in
@@ -265,8 +287,12 @@ class SecondModuleViewController: UIViewController {
             self.colorLabel.text = ColorLabelFactory().getRandomColor()
             if durationType == .changeSpeed {
                 viewMoveTime = newViewMoveTime
+                newViewMoveTime = 0.0
             }
+            speedDimensionAnimationStart = nil
             duration = viewMoveTime
+            print("change isAlphaAnimationStarting on false!!!")
+            isAlphaAnimationStarting = false
             self.startAnimation(repeated: repeated - 1, moveViewTime: duration, durationType: .normal, startAnimationTime: nil, viewPosition: nil)
             
         }
@@ -341,7 +367,7 @@ extension SecondModuleViewController {
     func resumeAnimation(stopAnimationTime: DispatchTime?, startAnimationTime: DispatchTime?, durationType: DurationType) {
         
         
-        guard let animationTimerStart = animationTimerStart else { return }
+        guard let animationTimerStart = startAnimationTime else { return }
         let positionOfView = [getViewCoordinate(view: colorView), getViewCoordinate(view: colorLabel)]
         animationTimerEnd = stopAnimationTime ?? DispatchTime.now()
         guard let animationTimerEnd = animationTimerEnd else { return }
@@ -371,8 +397,8 @@ extension SecondModuleViewController {
             }
             
         case .changeSpeed:
-            print("changed speed duration.")
-            if let speedDimensionAnimationStart = speedDimensionAnimationStart {
+//            print("changed speed duration.")
+            if let speedDimensionAnimationStart = startAnimationTime {
                 
                 let start = speedDimensionAnimationStart.uptimeNanoseconds
                 let time = end - start
@@ -420,46 +446,54 @@ extension SecondModuleViewController {
     
     @objc func speedButtonTapped(_ sender: UIButton) {
         guard let viewAnimator = viewAnimator else { return }
+        
         if viewAnimator.isRunning == false {
-            print(" animation is paused, can not change animation speed! ")
             return
         }
-        
-        if viewAlphaAnimation?.isRunning == true {
-            print("Can't change speed then alpha animation starting")
+        if isAlphaAnimationStarting == true {
+            print("Alpha animation starting! Can't change speed animation!!!")
             return
         }
-        
         if viewMoveTime > 0.5 {
             newViewMoveTime = viewMoveTime - TimeInterval(0.5)
         } else {
             return
         }
         
+        var start = animationTimerStart
+        if speedDimensionAnimationStart != nil {
+            start = speedDimensionAnimationStart
+        }
+        
         viewAnimator.stopAnimation(true)
         viewAlphaAnimation?.stopAnimation(true)
         animationTimerEnd = DispatchTime.now()
-        resumeAnimation(stopAnimationTime: nil, startAnimationTime: speedDimensionAnimationStart, durationType: .changeSpeed)
-            
+        resumeAnimation(stopAnimationTime: nil, startAnimationTime: start, durationType: .changeSpeed)
+        
     }
-    
+        
     @objc func speedReductionButtonTapped(_ sender: UIButton) {
         guard let viewAnimator = viewAnimator else { return }
         if viewAnimator.isRunning == false {
-            print(" animation is paused, can not change animation speed! ")
             return
         }
-        if viewAlphaAnimation?.isRunning == true {
-            print("Can't change speed then alpha animation starting")
+        if isAlphaAnimationStarting == true {
+            print("Alpha animation starting! Can't change speed animation!!!")
             return
+        }
+        var start = animationTimerStart
+        if speedDimensionAnimationStart != nil {
+            start = speedDimensionAnimationStart
         }
         newViewMoveTime = viewMoveTime + TimeInterval(0.5)
         viewAnimator.stopAnimation(true)
         viewAlphaAnimation?.stopAnimation(true)
         animationTimerEnd = DispatchTime.now()
-        resumeAnimation(stopAnimationTime: nil, startAnimationTime: speedDimensionAnimationStart, durationType: .changeSpeed)
-            
+        resumeAnimation(stopAnimationTime: nil, startAnimationTime: start, durationType: .changeSpeed)
+        
     }
-            
+    
 }
+        
+    
 
