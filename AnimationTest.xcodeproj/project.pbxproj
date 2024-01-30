@@ -16,6 +16,7 @@
 		A517CED42B4314CA00887665 /* ViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = A517CED32B4314CA00887665 /* ViewFactory.swift */; };
 		A517CED62B47406600887665 /* LabelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = A517CED52B47406600887665 /* LabelFactory.swift */; };
 		A517CED82B5BE9AE00887665 /* CustomTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A517CED72B5BE9AE00887665 /* CustomTimer.swift */; };
+		A517CEDA2B69964000887665 /* ObserveableUIViewPropertyAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A517CED92B69964000887665 /* ObserveableUIViewPropertyAnimator.swift */; };
 		A5DAD8852B40ABD200FDED74 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5DAD8842B40ABD200FDED74 /* AppDelegate.swift */; };
 		A5DAD8872B40ABD200FDED74 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5DAD8862B40ABD200FDED74 /* SceneDelegate.swift */; };
 		A5DAD88E2B40ABD400FDED74 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A5DAD88D2B40ABD400FDED74 /* Assets.xcassets */; };
@@ -34,6 +35,7 @@
 		A517CED32B4314CA00887665 /* ViewFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewFactory.swift; sourceTree = "<group>"; };
 		A517CED52B47406600887665 /* LabelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LabelFactory.swift; sourceTree = "<group>"; };
 		A517CED72B5BE9AE00887665 /* CustomTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTimer.swift; sourceTree = "<group>"; };
+		A517CED92B69964000887665 /* ObserveableUIViewPropertyAnimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObserveableUIViewPropertyAnimator.swift; sourceTree = "<group>"; };
 		A5DAD8812B40ABD200FDED74 /* AnimationTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AnimationTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A5DAD8842B40ABD200FDED74 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		A5DAD8862B40ABD200FDED74 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -65,6 +67,7 @@
 				A517CED32B4314CA00887665 /* ViewFactory.swift */,
 				A517CED52B47406600887665 /* LabelFactory.swift */,
 				A517CED72B5BE9AE00887665 /* CustomTimer.swift */,
+				A517CED92B69964000887665 /* ObserveableUIViewPropertyAnimator.swift */,
 			);
 			path = Service;
 			sourceTree = "<group>";
@@ -284,6 +287,7 @@
 				A517CEC62B41EB7B00887665 /* SecondModuleRouter.swift in Sources */,
 				A5DAD8A72B40AD4000FDED74 /* MainRouter.swift in Sources */,
 				A517CECA2B41EB9E00887665 /* SecondModuleViewController.swift in Sources */,
+				A517CEDA2B69964000887665 /* ObserveableUIViewPropertyAnimator.swift in Sources */,
 				A5DAD8A52B40AD3400FDED74 /* MainPresenter.swift in Sources */,
 				A5DAD8AB2B40AD6400FDED74 /* MainViewController.swift in Sources */,
 				A517CEC82B41EB8C00887665 /* SecondModuleBuilder.swift in Sources */,

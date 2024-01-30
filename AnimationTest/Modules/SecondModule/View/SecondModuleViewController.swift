@@ -22,7 +22,8 @@ class SecondModuleViewController: UIViewController {
     //MARK: - Injection
     var presenter: SecondModulePresenterProtocol!
     
-    var viewAnimator, viewAlphaAnimation: UIViewPropertyAnimator?
+    var viewAnimator: UIViewPropertyAnimator?
+    var viewAlphaAnimator: ObservableUIViewPropertyAnimator?
     //MARK: - Timer settings
     var timer: Timer?
     var totalTime = 30
@@ -188,7 +189,7 @@ class SecondModuleViewController: UIViewController {
             timer!.invalidate()
             timer = nil
             viewAnimator?.stopAnimation(true)
-            viewAlphaAnimation?.stopAnimation(true)
+            viewAlphaAnimator?.stopAnimation(true)
             presenter.goToStartScreen()
             
         }
@@ -196,6 +197,7 @@ class SecondModuleViewController: UIViewController {
     }
     
     //MARK: - Animation methods
+    
     
     func startAnimation(repeated: Int, moveViewTime: TimeInterval, durationType: DurationType, startAnimationTime: DispatchTime?, viewPosition: [CGRect]?) {
         
@@ -207,21 +209,23 @@ class SecondModuleViewController: UIViewController {
         if viewPosition == nil {
             setViewPosition(colorView, colorLabel)
         }
+        
+        
+        
         //MARK: - check duration 1
-//        print()
 
+        var fadeStart = moveViewTime - moveViewTime/4
         switch durationType {
         case .pause:
             pauseAnimationTimerStart = DispatchTime.now()
             speedDimensionAnimationStart = DispatchTime.now()
-            //MARK: - check duration 2
             duration  = moveViewTime
             
         case .changeSpeed:
             speedDimensionAnimationStart = DispatchTime.now()
             pauseAnimationTimerStart = DispatchTime.now()
-            //MARK: - check duration 3
             duration = moveViewTime
+
             
         case .normal:
             animationTimerStart = DispatchTime.now()
@@ -229,14 +233,9 @@ class SecondModuleViewController: UIViewController {
             pastTimeChangeSpeedAnimation = 0.0
             pauseAnimationTimerStart = nil
             speedDimensionAnimationStart = nil
-            //MARK: - check duration 4
             duration = viewMoveTime
             
         }
-        
-        var fadeStart = moveViewTime - moveViewTime/4
-        
-        print("time of fade animation in main: \(fadeStart), moveViewTime: \(moveViewTime)")
 
         viewAnimator = UIViewPropertyAnimator(duration: TimeInterval(duration), curve: .linear) { [weak self] in
             
@@ -245,10 +244,12 @@ class SecondModuleViewController: UIViewController {
             
         }
         
-        viewAlphaAnimation = UIViewPropertyAnimator(duration: TimeInterval(duration/4), curve: .easeIn) {[weak self] in
+        viewAlphaAnimator = ObservableUIViewPropertyAnimator(duration: TimeInterval(duration/4), curve: .easeIn) {[weak self] in
             
             guard let self = self else { return }
+           
             self.fadeOutView(self.colorView, self.colorLabel)
+           
 
         }
         
@@ -263,23 +264,14 @@ class SecondModuleViewController: UIViewController {
                 fadeStart = 0.1
                 print("WARNING!!!!")
             }
-            viewAlphaAnimation?.startAnimation(afterDelay: fadeStart)
+            viewAlphaAnimator?.startAnimation(afterDelay: fadeStart)
             
         }
         
-        viewAlphaAnimation?.addAnimations { [weak self] in
-            guard let self = self else { return }
-            DispatchQueue.main.asyncAfter(deadline: .now() + fadeStart) {
-                
-                // Запускается столько раз, сколько была нажата кнопка изменения скорости! ПРОВЕРИТЬ!!!
-                print("change isAlphaAnimationStarting on true!!!")
-                self.isAlphaAnimationStarting = true
-                
-            }
-        }
         
-        viewAlphaAnimation?.addCompletion { [weak self] _ in
         
+        viewAlphaAnimator?.addCompletion { [weak self] _ in
+           
             guard let self = self else { return }
             self.colorView.alpha = 0
             self.colorLabel.alpha = 0
@@ -291,10 +283,15 @@ class SecondModuleViewController: UIViewController {
             }
             speedDimensionAnimationStart = nil
             duration = viewMoveTime
-            print("change isAlphaAnimationStarting on false!!!")
             isAlphaAnimationStarting = false
             self.startAnimation(repeated: repeated - 1, moveViewTime: duration, durationType: .normal, startAnimationTime: nil, viewPosition: nil)
             
+        }
+        
+        viewAlphaAnimator?.onFractionCompleteUpdated = { fractionComplete in
+            if fractionComplete != 0.0 {
+                self.isAlphaAnimationStarting = true
+            }
         }
         
         viewAnimator?.startAnimation()
@@ -322,7 +319,7 @@ class SecondModuleViewController: UIViewController {
         
         view.alpha = 0
         label.alpha = 0
-        
+    
     }
     
     
@@ -397,7 +394,6 @@ extension SecondModuleViewController {
             }
             
         case .changeSpeed:
-//            print("changed speed duration.")
             if let speedDimensionAnimationStart = startAnimationTime {
                 
                 let start = speedDimensionAnimationStart.uptimeNanoseconds
@@ -431,7 +427,7 @@ extension SecondModuleViewController {
             pauseAnimationTimerEnd = DispatchTime.now()
             timer?.invalidate()
             viewAnimator?.stopAnimation(true)
-            viewAlphaAnimation?.stopAnimation(true)
+            viewAlphaAnimator?.stopAnimation(true)
             isPause = true
             
         } else {
@@ -466,7 +462,7 @@ extension SecondModuleViewController {
         }
         
         viewAnimator.stopAnimation(true)
-        viewAlphaAnimation?.stopAnimation(true)
+        viewAlphaAnimator?.stopAnimation(true)
         animationTimerEnd = DispatchTime.now()
         resumeAnimation(stopAnimationTime: nil, startAnimationTime: start, durationType: .changeSpeed)
         
@@ -487,7 +483,7 @@ extension SecondModuleViewController {
         }
         newViewMoveTime = viewMoveTime + TimeInterval(0.5)
         viewAnimator.stopAnimation(true)
-        viewAlphaAnimation?.stopAnimation(true)
+        viewAlphaAnimator?.stopAnimation(true)
         animationTimerEnd = DispatchTime.now()
         resumeAnimation(stopAnimationTime: nil, startAnimationTime: start, durationType: .changeSpeed)
         
