@@ -12,6 +12,7 @@ protocol SecondModulePresenterProtocol: AnyObject {
     
     init(router: SecondModuleRouterProtocol)
     func goToStartScreen()
+    func saveState(vPosition: CGRect, tPosition: CGRect, bColor: Int, fColor: Int, restTime: Int, aSpeed: TimeInterval, duration: TimeInterval)
     
 }
 
@@ -25,6 +26,10 @@ class SecondModulePresenter: SecondModulePresenterProtocol {
     
     func goToStartScreen() {
         router.goToStartScreen()
+    }
+    
+    func saveState(vPosition: CGRect, tPosition: CGRect, bColor: Int, fColor: Int, restTime: Int, aSpeed: TimeInterval, duration: TimeInterval) {
+        
     }
     
 }

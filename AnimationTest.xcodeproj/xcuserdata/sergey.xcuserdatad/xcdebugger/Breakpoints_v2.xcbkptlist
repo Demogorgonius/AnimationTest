@@ -14,8 +14,8 @@
             filePath = "AnimationTest/Modules/SecondModule/View/SecondModuleViewController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "431"
-            endingLineNumber = "431"
+            startingLineNumber = "453"
+            endingLineNumber = "453"
             landmarkName = "pauseButtonTapped()"
             landmarkType = "7">
             <Locations>

@@ -38,6 +38,7 @@ class SecondModuleViewController: UIViewController {
     var speedButtonTap: Bool = false
     var lastPauseDuration: TimeInterval = 0.0
     var pastTimeChangeSpeedAnimation: TimeInterval = 0.0
+    var currentDuration: TimeInterval = 0.0
     var isAlphaAnimationStarting: Bool = false
     
     //MARK: - Services variables
@@ -113,6 +114,16 @@ class SecondModuleViewController: UIViewController {
         setConstraints()
         timerStart()
         
+    }
+    
+    //MARK: - ViewWillDisappear
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+
+        if self.isMovingFromParent {
+            
+        }
     }
     
     //MARK: - UI methods
@@ -361,6 +372,8 @@ class SecondModuleViewController: UIViewController {
 
 extension SecondModuleViewController {
     
+//MARK: - Resume animation method
+    
     func resumeAnimation(stopAnimationTime: DispatchTime?, startAnimationTime: DispatchTime?, durationType: DurationType) {
         
         
@@ -419,6 +432,8 @@ extension SecondModuleViewController {
         
     }
     
+//MARK: - @objc methods
+    
     @objc func pauseButtonTapped() {
         
         if isPause == false {
@@ -428,6 +443,13 @@ extension SecondModuleViewController {
             timer?.invalidate()
             viewAnimator?.stopAnimation(true)
             viewAlphaAnimator?.stopAnimation(true)
+            presenter.saveState(vPosition: <#T##CGRect#>,
+                                tPosition: <#T##CGRect#>,
+                                bColor: <#T##Int#>,
+                                fColor: <#T##Int#>,
+                                restTime: <#T##Int#>,
+                                aSpeed: <#T##TimeInterval#>,
+                                duration: <#T##TimeInterval#>)
             isPause = true
             
         } else {

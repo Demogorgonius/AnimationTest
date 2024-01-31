@@ -17,6 +17,7 @@
 		A517CED62B47406600887665 /* LabelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = A517CED52B47406600887665 /* LabelFactory.swift */; };
 		A517CED82B5BE9AE00887665 /* CustomTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A517CED72B5BE9AE00887665 /* CustomTimer.swift */; };
 		A517CEDA2B69964000887665 /* ObserveableUIViewPropertyAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A517CED92B69964000887665 /* ObserveableUIViewPropertyAnimator.swift */; };
+		A517CEDD2B6A579A00887665 /* ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A517CEDC2B6A579A00887665 /* ViewModel.swift */; };
 		A5DAD8852B40ABD200FDED74 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5DAD8842B40ABD200FDED74 /* AppDelegate.swift */; };
 		A5DAD8872B40ABD200FDED74 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5DAD8862B40ABD200FDED74 /* SceneDelegate.swift */; };
 		A5DAD88E2B40ABD400FDED74 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A5DAD88D2B40ABD400FDED74 /* Assets.xcassets */; };
@@ -36,6 +37,7 @@
 		A517CED52B47406600887665 /* LabelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LabelFactory.swift; sourceTree = "<group>"; };
 		A517CED72B5BE9AE00887665 /* CustomTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTimer.swift; sourceTree = "<group>"; };
 		A517CED92B69964000887665 /* ObserveableUIViewPropertyAnimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObserveableUIViewPropertyAnimator.swift; sourceTree = "<group>"; };
+		A517CEDC2B6A579A00887665 /* ViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewModel.swift; sourceTree = "<group>"; };
 		A5DAD8812B40ABD200FDED74 /* AnimationTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AnimationTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A5DAD8842B40ABD200FDED74 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		A5DAD8862B40ABD200FDED74 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -70,6 +72,14 @@
 				A517CED92B69964000887665 /* ObserveableUIViewPropertyAnimator.swift */,
 			);
 			path = Service;
+			sourceTree = "<group>";
+		};
+		A517CEDB2B6A577D00887665 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				A517CEDC2B6A579A00887665 /* ViewModel.swift */,
+			);
+			path = Model;
 			sourceTree = "<group>";
 		};
 		A5DAD8782B40ABD200FDED74 = {
@@ -133,6 +143,7 @@
 		A5DAD89B2B40AC1000FDED74 /* SecondModule */ = {
 			isa = PBXGroup;
 			children = (
+				A517CEDB2B6A577D00887665 /* Model */,
 				A5DAD8A32B40AD1400FDED74 /* Router */,
 				A5DAD8A22B40AD0B00FDED74 /* Builder */,
 				A5DAD8A12B40AD0200FDED74 /* View */,
@@ -292,6 +303,7 @@
 				A5DAD8AB2B40AD6400FDED74 /* MainViewController.swift in Sources */,
 				A517CEC82B41EB8C00887665 /* SecondModuleBuilder.swift in Sources */,
 				A517CED82B5BE9AE00887665 /* CustomTimer.swift in Sources */,
+				A517CEDD2B6A579A00887665 /* ViewModel.swift in Sources */,
 				A517CED42B4314CA00887665 /* ViewFactory.swift in Sources */,
 				A517CED62B47406600887665 /* LabelFactory.swift in Sources */,
 				A5DAD8872B40ABD200FDED74 /* SceneDelegate.swift in Sources */,
