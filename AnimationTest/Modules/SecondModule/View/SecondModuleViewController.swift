@@ -43,6 +43,7 @@ class SecondModuleViewController: UIViewController {
     
     //MARK: - Services variables
     var isPause: Bool = false
+    var exitByTimer: Bool = false
        
     
     //MARK: - User interface
@@ -121,8 +122,13 @@ class SecondModuleViewController: UIViewController {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
 
-        if self.isMovingFromParent {
-            
+        if self.isMovingFromParent && exitByTimer == false {
+            presenter.saveState(vPosition: getViewCoordinate(view: colorView),
+                                tPosition: getViewCoordinate(view: colorLabel),
+                                bColor: ColorViewFactory().getCurentIndex(colorView.backgroundColor ?? .red),
+                                fColor: ColorLabelFactory().getCurentIndex(colorLabel.text ?? "красный"),
+                                restTime: totalTime,
+                                duration: currentDuration)
         }
     }
     
@@ -201,6 +207,7 @@ class SecondModuleViewController: UIViewController {
             timer = nil
             viewAnimator?.stopAnimation(true)
             viewAlphaAnimator?.stopAnimation(true)
+            exitByTimer = true
             presenter.goToStartScreen()
             
         }
@@ -231,12 +238,13 @@ class SecondModuleViewController: UIViewController {
             pauseAnimationTimerStart = DispatchTime.now()
             speedDimensionAnimationStart = DispatchTime.now()
             duration  = moveViewTime
+            currentDuration = duration
             
         case .changeSpeed:
             speedDimensionAnimationStart = DispatchTime.now()
             pauseAnimationTimerStart = DispatchTime.now()
             duration = moveViewTime
-
+            currentDuration = duration
             
         case .normal:
             animationTimerStart = DispatchTime.now()
@@ -245,7 +253,7 @@ class SecondModuleViewController: UIViewController {
             pauseAnimationTimerStart = nil
             speedDimensionAnimationStart = nil
             duration = viewMoveTime
-            
+            currentDuration = duration
         }
 
         viewAnimator = UIViewPropertyAnimator(duration: TimeInterval(duration), curve: .linear) { [weak self] in
@@ -443,13 +451,6 @@ extension SecondModuleViewController {
             timer?.invalidate()
             viewAnimator?.stopAnimation(true)
             viewAlphaAnimator?.stopAnimation(true)
-            presenter.saveState(vPosition: <#T##CGRect#>,
-                                tPosition: <#T##CGRect#>,
-                                bColor: <#T##Int#>,
-                                fColor: <#T##Int#>,
-                                restTime: <#T##Int#>,
-                                aSpeed: <#T##TimeInterval#>,
-                                duration: <#T##TimeInterval#>)
             isPause = true
             
         } else {

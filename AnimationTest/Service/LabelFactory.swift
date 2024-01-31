@@ -50,6 +50,14 @@ class ColorLabelFactory {
         
     }
     
+    func getCurentIndex(_ color: String) -> Int {
+        
+        let index: Int = colours.firstIndex(of: color) ?? 0
+        
+        return index
+        
+    }
+    
     
     
 }

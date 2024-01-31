@@ -51,6 +51,13 @@ class ColorViewFactory {
         
     }
     
+    func getCurentIndex(_ color: UIColor) -> Int {
+        
+        let index: Int = colors.firstIndex(of: color) ?? 0
+        
+        return index
+        
+    }
     
     
 }
