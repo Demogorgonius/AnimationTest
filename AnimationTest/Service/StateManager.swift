@@ -86,7 +86,7 @@ class StateManager: StateManagerProtocol {
     
     func checkState() -> Bool {
         
-        if let settings = defaults.object(forKey: "resumeSettings") as? Data {
+        if defaults.object(forKey: "resumeSettings") is Data {
             return true
         } else {
             return false
@@ -95,7 +95,7 @@ class StateManager: StateManagerProtocol {
     }
     
     func deleteState(completion: @escaping (Result<Bool, Error>) -> Void) {
-        if let settings = defaults.object(forKey: "resumeSettings") as? Data {
+        if defaults.object(forKey: "resumeSettings") is Data {
             defaults.set(nil, forKey: "resumeSettings")
             completion(.success(true))
         } else {
