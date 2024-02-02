@@ -436,7 +436,11 @@ extension SecondModuleViewController {
             print("normal duration.")
         }
         
-        startAnimation(repeated: countOfRepeats , moveViewTime: duration, durationType: durationType, startAnimationTime: startAnimationTime, viewPosition: positionOfView)
+        startAnimation(repeated: countOfRepeats,
+                       moveViewTime: duration,
+                       durationType: durationType,
+                       startAnimationTime: startAnimationTime,
+                       viewPosition: positionOfView)
         
     }
     

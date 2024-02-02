@@ -27,7 +27,8 @@ class SecondModuleBuilder: SecondModuleBuilderProtocol {
         guard let navigationVC = navigationVC else { fatalError("") }
         let vc = SecondModuleViewController()
         let router = SecondModuleRouter(navigationVC: navigationVC)
-        let presenter = SecondModulePresenter(router: router)
+        let stateManager = StateManager()
+        let presenter = SecondModulePresenter(router: router, stateManager: stateManager)
         vc.presenter = presenter
         return vc
     }

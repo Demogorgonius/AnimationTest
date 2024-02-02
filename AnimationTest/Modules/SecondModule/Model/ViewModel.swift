@@ -13,7 +13,6 @@ struct ViewModel: Codable {
     var textPosition: CGRect
     var backgroundColor: Int
     var textColor: Int
-    var animationSpeed: TimeInterval
     var duration: TimeInterval
     var theRestOfTheCountdown: Int
 }
