@@ -118,6 +118,7 @@ class SecondModuleViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         setConstraints()
+        timerLabel.text = String(totalTime)
         if presenter.resumeAnimation == false {
             timerStart()
         }
@@ -208,7 +209,7 @@ class SecondModuleViewController: UIViewController {
         secondPassed = 0
         timer = Timer.scheduledTimer(timeInterval: 1.0, target:  self, selector: #selector(updateTimer), userInfo: nil, repeats: true)
         
-        if isPause != true {
+        if isPause != true && presenter.resumeAnimation != true {
             startAnimation(repeated: countOfRepeats, moveViewTime: viewMoveTime, durationType: .normal, startAnimationTime: nil, viewPosition: nil)
         }
         
@@ -247,10 +248,6 @@ class SecondModuleViewController: UIViewController {
         if viewPosition == nil {
             setViewPosition(colorView, colorLabel)
         }
-        
-        
-        
-        //MARK: - check duration 1
 
         var fadeStart = moveViewTime - moveViewTime/4
         switch durationType {
@@ -586,6 +583,14 @@ extension SecondModuleViewController: SecondModuleViewProtocol {
             colorView.backgroundColor = ColorViewFactory().getColor(viewModel.backgroundColor)
             colorLabel.text = ColorLabelFactory().getColor(viewModel.textColor)
             totalTime = viewModel.theRestOfTheCountdown
+            viewMoveTime = viewModel.duration
+            timerStart()
+            startAnimation(repeated: 1000,
+                           moveViewTime: viewModel.remainingDuration,
+                           durationType: .pause,
+                           startAnimationTime: nil,
+                           viewPosition: [viewModel.viewPosition, viewModel.textPosition])
+            
             
             
         }

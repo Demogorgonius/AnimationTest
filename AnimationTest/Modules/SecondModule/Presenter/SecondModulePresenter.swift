@@ -121,8 +121,8 @@ class SecondModulePresenter: SecondModulePresenterProtocol {
         if stateManager.checkState() {
             loadView()
             if viewModel != nil {
-//                view.success(successType: .settingView)
-                view.success(successType: .defaultLoad)
+                view.success(successType: .settingView)
+//                view.success(successType: .defaultLoad)
             }
         } else {
             view.success(successType: .defaultLoad)
