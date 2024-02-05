@@ -14,5 +14,6 @@ struct ViewModel: Codable {
     var backgroundColor: Int
     var textColor: Int
     var duration: TimeInterval
+    var remainingDuration: TimeInterval
     var theRestOfTheCountdown: Int
 }

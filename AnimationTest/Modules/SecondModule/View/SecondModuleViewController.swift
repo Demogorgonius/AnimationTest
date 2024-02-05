@@ -14,6 +14,7 @@ enum DurationType {
     case pause
     case changeSpeed
     case normal
+    case exit
     
 }
 
@@ -26,11 +27,12 @@ class SecondModuleViewController: UIViewController {
     var viewAlphaAnimator: ObservableUIViewPropertyAnimator?
     //MARK: - Timer settings
     var timer: Timer?
-    var totalTime = 30
+    var totalTime = 10
     var secondPassed = 0
     var elapsedTime: Int?
     
     //MARK: - Animation settings
+    var viewModel: ViewModel?
     var viewMoveTime = TimeInterval(3.0)
     var newViewMoveTime = TimeInterval(0.0)
     var countOfRepeats: Int = 1000
@@ -106,6 +108,9 @@ class SecondModuleViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setViews()
+        if presenter.resumeAnimation == true {
+            presenter.setView()
+        }
     }
     
     //MARK: - ViewWillAppear
@@ -113,7 +118,9 @@ class SecondModuleViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         setConstraints()
-        timerStart()
+        if presenter.resumeAnimation == false {
+            timerStart()
+        }
         
     }
     
@@ -123,12 +130,25 @@ class SecondModuleViewController: UIViewController {
         super.viewWillDisappear(animated)
 
         if self.isMovingFromParent && exitByTimer == false {
+            
+            totalTime -= secondPassed
+            pauseAnimationTimerEnd = DispatchTime.now()
+            timer?.invalidate()
+            viewAnimator?.stopAnimation(true)
+            viewAlphaAnimator?.stopAnimation(true)
+            
+            let duration = getDuration(stopAnimationTime: pauseAnimationTimerEnd, startAnimationTime: animationTimerStart, durationType: .exit)
+            
             presenter.saveState(vPosition: getViewCoordinate(view: colorView),
                                 tPosition: getViewCoordinate(view: colorLabel),
                                 bColor: ColorViewFactory().getCurentIndex(colorView.backgroundColor ?? .red),
                                 fColor: ColorLabelFactory().getCurentIndex(colorLabel.text ?? "красный"),
                                 restTime: totalTime,
-                                duration: currentDuration)
+                                duration: viewMoveTime,
+                                remainingDuration: duration)
+        }
+        if exitByTimer == true {
+            presenter.deleteState()
         }
     }
     
@@ -254,6 +274,8 @@ class SecondModuleViewController: UIViewController {
             speedDimensionAnimationStart = nil
             duration = viewMoveTime
             currentDuration = duration
+        case .exit:
+            print("exit")
         }
 
         viewAnimator = UIViewPropertyAnimator(duration: TimeInterval(duration), curve: .linear) { [weak self] in
@@ -382,13 +404,11 @@ extension SecondModuleViewController {
     
 //MARK: - Resume animation method
     
-    func resumeAnimation(stopAnimationTime: DispatchTime?, startAnimationTime: DispatchTime?, durationType: DurationType) {
+    func getDuration(stopAnimationTime: DispatchTime?, startAnimationTime: DispatchTime?, durationType: DurationType) -> TimeInterval {
         
-        
-        guard let animationTimerStart = startAnimationTime else { return }
-        let positionOfView = [getViewCoordinate(view: colorView), getViewCoordinate(view: colorLabel)]
+        guard let animationTimerStart = startAnimationTime else { return 0.0 }
         animationTimerEnd = stopAnimationTime ?? DispatchTime.now()
-        guard let animationTimerEnd = animationTimerEnd else { return }
+        guard let animationTimerEnd = animationTimerEnd else { return 0.0 }
         let end = animationTimerEnd.uptimeNanoseconds
         let start = animationTimerStart.uptimeNanoseconds
         let time = end - start
@@ -434,8 +454,32 @@ extension SecondModuleViewController {
     
         case .normal:
             print("normal duration.")
+        case .exit:
+            if let pauseAnimationTimerStart = pauseAnimationTimerStart {
+                
+                let start = pauseAnimationTimerStart.uptimeNanoseconds
+                let time = end - start
+                let dTime = Double(time)
+                let secTime = dTime/1000000000.00
+                duration = viewMoveTime - (lastPauseDuration + secTime )
+                lastPauseDuration += secTime
+        
+            }
+            
+            if lastPauseDuration == 0.0 {
+                lastPauseDuration += secTime
+            }
         }
         
+        return duration
+        
+    }
+    
+    func resumeAnimation(stopAnimationTime: DispatchTime?, startAnimationTime: DispatchTime?, durationType: DurationType) {
+        
+        let duration = getDuration(stopAnimationTime: stopAnimationTime, startAnimationTime: startAnimationTime, durationType: durationType)
+        
+        let positionOfView = [getViewCoordinate(view: colorView), getViewCoordinate(view: colorLabel)]
         startAnimation(repeated: countOfRepeats,
                        moveViewTime: duration,
                        durationType: durationType,
@@ -514,6 +558,49 @@ extension SecondModuleViewController {
         animationTimerEnd = DispatchTime.now()
         resumeAnimation(stopAnimationTime: nil, startAnimationTime: start, durationType: .changeSpeed)
         
+    }
+    
+}
+
+extension SecondModuleViewController: SecondModuleViewProtocol {
+    
+    func success(successType: SuccessType) {
+        switch successType {
+        case .saveOk:
+            presenter.goToStartScreen()
+        case .deleteOk:
+           print("State deleted!")
+        case .defaultLoad:
+            timerStart()
+        case .settingView:
+            viewModel = presenter.viewModel
+            guard let viewModel = viewModel else { return }
+//            ViewModel(viewPosition: vPosition,
+//                                        textPosition: tPosition,
+//                                        backgroundColor: bColor,
+//                                        textColor: fColor,
+//                                        duration: duration,
+//                                        theRestOfTheCountdown: restTime)
+            colorView.frame = viewModel.viewPosition
+            colorLabel.frame = viewModel.textPosition
+            colorView.backgroundColor = ColorViewFactory().getColor(viewModel.backgroundColor)
+            colorLabel.text = ColorLabelFactory().getColor(viewModel.textColor)
+            totalTime = viewModel.theRestOfTheCountdown
+            
+            
+        }
+    }
+    
+    func failure(error: Error) {
+        let alert = UIAlertController(title: "Warning!", message: error.localizedDescription, preferredStyle: .alert)
+        let okAction = UIAlertAction(title: "OK", style: .default) { action in
+            self.presenter.goToStartScreen()
+        }
+        let cancelAction = UIAlertAction(title: "Cancel", style: .default) { action in
+            self.presenter.goToStartScreen()
+        }
+        alert.addAction(okAction)
+        alert.addAction(cancelAction)
     }
     
 }

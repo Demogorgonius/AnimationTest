@@ -10,7 +10,7 @@ import UIKit
 
 protocol MainRouterProtocol: AnyObject {
     
-    func goToSecondView()
+    func goToSecondView(resumeAnimation: Bool)
     init(navigationVC: UINavigationController)
     
 }
@@ -23,9 +23,9 @@ class MainRouter: MainRouterProtocol {
         self.navigationVC = navigationVC
     }
     
-    func goToSecondView() {
+    func goToSecondView(resumeAnimation: Bool) {
         guard let navVC = navigationVC else { return }
-        let vc = SecondModuleBuilder(navigationVC: navVC).buildSecondModule()
+        let vc = SecondModuleBuilder(navigationVC: navVC).buildSecondModule(resumeAnimation: resumeAnimation)
         navVC.pushViewController(vc, animated: true)
     }
     

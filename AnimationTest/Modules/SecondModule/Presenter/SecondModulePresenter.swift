@@ -17,14 +17,19 @@ enum SuccessType {
 
 protocol SecondModulePresenterProtocol: AnyObject {
     
-    init(router: SecondModuleRouterProtocol, stateManager: StateManagerProtocol)
+    init(view: SecondModuleViewProtocol, router: SecondModuleRouterProtocol, stateManager: StateManagerProtocol, resumeAnimation: Bool)
     func goToStartScreen()
     func saveState(vPosition: CGRect,
                    tPosition: CGRect,
                    bColor: Int,
                    fColor: Int,
                    restTime: Int,
-                   duration: TimeInterval)
+                   duration: TimeInterval,
+                   remainingDuration: TimeInterval)
+    func setView()
+    func deleteState()
+    var viewModel: ViewModel? {get set}
+    var resumeAnimation: Bool! {get set}
 }
 
 protocol SecondModuleViewProtocol: AnyObject {
@@ -40,11 +45,15 @@ class SecondModulePresenter: SecondModulePresenterProtocol {
     var router: SecondModuleRouterProtocol!
     var stateManager: StateManagerProtocol!
     var viewModel: ViewModel?
+    var resumeAnimation: Bool!
     
-    required init(router: SecondModuleRouterProtocol, stateManager: StateManagerProtocol) {
+    required init(view: SecondModuleViewProtocol, router: SecondModuleRouterProtocol, stateManager: StateManagerProtocol, resumeAnimation: Bool) {
+        
+        self.view = view
         self.router = router
         self.stateManager = stateManager
-        setView()
+        self.resumeAnimation = resumeAnimation
+
     }
     
     func goToStartScreen() {
@@ -56,14 +65,17 @@ class SecondModulePresenter: SecondModulePresenterProtocol {
                    bColor: Int,
                    fColor: Int,
                    restTime: Int,
-                   duration: TimeInterval) {
+                   duration: TimeInterval,
+                   remainingDuration: TimeInterval) {
         
         stateManager.saveState(vPosition: vPosition,
                                tPosition: tPosition,
                                bColor: bColor,
                                fColor: fColor,
                                restTime: restTime,
-                               duration: duration) { [weak self] result in
+                               duration: duration,
+                               remainingDuration: remainingDuration) { [weak self] result in
+                               
             guard let self = self else { return }
             switch result {
             case .success(let viewModel):
@@ -109,7 +121,8 @@ class SecondModulePresenter: SecondModulePresenterProtocol {
         if stateManager.checkState() {
             loadView()
             if viewModel != nil {
-                view.success(successType: .settingView)
+//                view.success(successType: .settingView)
+                view.success(successType: .defaultLoad)
             }
         } else {
             view.success(successType: .defaultLoad)
