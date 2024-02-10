@@ -24,6 +24,8 @@ extension UIView: ColorView {
 
 class ColorViewFactory {
     
+    let colors: [UIColor] = [.red, .gray, .black, .blue, .brown, .purple]
+    
     static func createShadowView() -> ColorView {
         let view = UIView()
         view.backgroundColor = .brown
@@ -39,11 +41,23 @@ class ColorViewFactory {
     
     func getRandomColor() -> UIColor {
         
-        let colors: [UIColor] = [.red, .gray, .black, .blue, .brown, .purple]
         return colors[Int.random(in: 0 ... colors.count-1)]
         
     }
     
+    func getColor(_ index: Int) -> UIColor {
+        
+        return colors[index]
+        
+    }
+    
+    func getCurentIndex(_ color: UIColor) -> Int {
+        
+        let index: Int = colors.firstIndex(of: color) ?? 0
+        
+        return index
+        
+    }
     
     
 }

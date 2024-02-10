@@ -30,7 +30,8 @@ class MainBuilder: MainBuilderProtocol {
         }
         let vc = MainViewController()
         let router = MainRouter(navigationVC: navigationVC)
-        let presenter = MainPresenter(router: router)
+        let stateManager = StateManager()
+        let presenter = MainPresenter(router: router, stateManager: stateManager)
         vc.presenter = presenter
         
         return vc

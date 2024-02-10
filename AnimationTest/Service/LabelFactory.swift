@@ -23,6 +23,8 @@ extension UILabel: ColorLabel {
 }
 
 class ColorLabelFactory {
+
+    let colours: [String] = ["красный", "серый", "чёрный", "синий", "коричневый", "фиолетовый"]
     
     static func createShadowLabel() -> ColorLabel {
         let label = UILabel()
@@ -38,8 +40,21 @@ class ColorLabelFactory {
     
     func getRandomColor() -> String {
         
-        let colours: [String] = ["красный", "серый", "чёрный", "синий", "коричневый", "фиолетовый"]
         return colours[Int.random(in: 0 ... colours.count-1)]
+        
+    }
+    
+    func getColor(_ index: Int) -> String {
+        
+        return colours[index]
+        
+    }
+    
+    func getCurentIndex(_ color: String) -> Int {
+        
+        let index: Int = colours.firstIndex(of: color) ?? 0
+        
+        return index
         
     }
     

@@ -10,19 +10,31 @@ import UIKit
 
 protocol MainPresenterProtocol: AnyObject {
     func tapGoToSecondView()
-    init(router: MainRouterProtocol)
+    func tapResumeAnimation()
+    func checkForResume() -> Bool
+    init(router: MainRouterProtocol, stateManager: StateManagerProtocol)
 }
 
 class MainPresenter: MainPresenterProtocol {
     
     var router: MainRouterProtocol!
+    var stateManager: StateManagerProtocol!
     
-    required init(router: MainRouterProtocol) {
+    required init(router: MainRouterProtocol, stateManager: StateManagerProtocol) {
         self.router = router
+        self.stateManager = stateManager
     }
     
     func tapGoToSecondView() {
-        router.goToSecondView()
+        router.goToSecondView(resumeAnimation: false)
+    }
+    
+    func tapResumeAnimation() {
+        router.goToSecondView(resumeAnimation: true)
+    }
+    
+    func checkForResume() -> Bool {
+        return stateManager.checkState()
     }
     
 }
