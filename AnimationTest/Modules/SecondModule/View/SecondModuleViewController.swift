@@ -27,7 +27,7 @@ class SecondModuleViewController: UIViewController {
     var viewAlphaAnimator: ObservableUIViewPropertyAnimator?
     //MARK: - Timer settings
     var timer: Timer?
-    var totalTime = 10
+    var totalTime = 30
     var secondPassed = 0
     var elapsedTime: Int?
     
@@ -46,6 +46,7 @@ class SecondModuleViewController: UIViewController {
     //MARK: - Services variables
     var isPause: Bool = false
     var exitByTimer: Bool = false
+    var isRestoreAnimation: Bool = false
        
     
     //MARK: - User interface
@@ -61,6 +62,16 @@ class SecondModuleViewController: UIViewController {
         
         let label = ColorLabelFactory.createShadowLabel().shadowColorLabel
         label.text = ColorLabelFactory().getRandomColor()
+        return label
+        
+    }()
+    
+    
+    lazy var pauseLabel: UILabel = {
+        
+        let label = ColorLabelFactory.createShadowLabel().shadowColorLabel
+        label.textColor = UIColor(cgColor: CGColor(red: 65, green: 65, blue: 90, alpha: 100))
+        label.text = "PAUSE"
         return label
         
     }()
@@ -119,6 +130,11 @@ class SecondModuleViewController: UIViewController {
         super.viewWillAppear(animated)
         setConstraints()
         timerLabel.text = String(totalTime)
+        if isPause == false {
+            pauseLabel.isHidden = true
+        } else {
+            pauseLabel.isHidden = false
+        }
         if presenter.resumeAnimation == false {
             timerStart()
         }
@@ -132,11 +148,15 @@ class SecondModuleViewController: UIViewController {
 
         if self.isMovingFromParent && exitByTimer == false {
             
-            totalTime -= secondPassed
-            pauseAnimationTimerEnd = DispatchTime.now()
-            timer?.invalidate()
-            viewAnimator?.stopAnimation(true)
-            viewAlphaAnimator?.stopAnimation(true)
+            if isPause == false {
+                
+                totalTime -= secondPassed
+                pauseAnimationTimerEnd = DispatchTime.now()
+                timer?.invalidate()
+                viewAnimator?.stopAnimation(true)
+                viewAlphaAnimator?.stopAnimation(true)
+                
+            }
             
             let duration = getDuration(stopAnimationTime: pauseAnimationTimerEnd, startAnimationTime: animationTimerStart, durationType: .exit)
             
@@ -162,6 +182,7 @@ class SecondModuleViewController: UIViewController {
         view.addSubview(pauseButton)
         view.addSubview(speedButton)
         view.addSubview(speedReductionButton)
+        view.addSubview(pauseLabel)
         colorView.addSubview(colorLabel)
     }
     
@@ -193,6 +214,11 @@ class SecondModuleViewController: UIViewController {
             make.width.equalTo(100)
             make.leading.equalToSuperview().offset(15)
             make.bottom.equalToSuperview().offset(-15)
+        }
+        
+        pauseLabel.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.centerY.equalToSuperview()
         }
         
         pauseButton.addTarget(self, action: #selector(pauseButtonTapped), for: .touchUpInside)
@@ -496,13 +522,31 @@ extension SecondModuleViewController {
             timer?.invalidate()
             viewAnimator?.stopAnimation(true)
             viewAlphaAnimator?.stopAnimation(true)
+            pauseLabel.isHidden = false
             isPause = true
             
         } else {
             
-            timerStart()
-            isPause = false
-            resumeAnimation(stopAnimationTime: pauseAnimationTimerEnd, startAnimationTime: animationTimerStart, durationType: .pause)
+            pauseLabel.isHidden = true
+            if isRestoreAnimation == true {
+                viewModel = presenter.viewModel
+                guard let viewModel = viewModel else { return }
+                timerStart()
+                isRestoreAnimation = false
+                isPause = false
+                startAnimation(repeated: 1000,
+                               moveViewTime: viewModel.remainingDuration,
+                               durationType: .pause,
+                               startAnimationTime: nil,
+                               viewPosition: [viewModel.viewPosition, viewModel.textPosition])
+            } else {
+                
+                timerStart()
+                isPause = false
+                resumeAnimation(stopAnimationTime: pauseAnimationTimerEnd, startAnimationTime: animationTimerStart, durationType: .pause)
+                
+            }
+            
             
         }
         
@@ -564,35 +608,31 @@ extension SecondModuleViewController: SecondModuleViewProtocol {
     func success(successType: SuccessType) {
         switch successType {
         case .saveOk:
+            
             presenter.goToStartScreen()
+            
         case .deleteOk:
+            
            print("State deleted!")
+            
         case .defaultLoad:
+            
             timerStart()
+            
         case .settingView:
+            
             viewModel = presenter.viewModel
             guard let viewModel = viewModel else { return }
-//            ViewModel(viewPosition: vPosition,
-//                                        textPosition: tPosition,
-//                                        backgroundColor: bColor,
-//                                        textColor: fColor,
-//                                        duration: duration,
-//                                        theRestOfTheCountdown: restTime)
             colorView.frame = viewModel.viewPosition
             colorLabel.frame = viewModel.textPosition
             colorView.backgroundColor = ColorViewFactory().getColor(viewModel.backgroundColor)
             colorLabel.text = ColorLabelFactory().getColor(viewModel.textColor)
             totalTime = viewModel.theRestOfTheCountdown
             viewMoveTime = viewModel.duration
-            timerStart()
-            startAnimation(repeated: 1000,
-                           moveViewTime: viewModel.remainingDuration,
-                           durationType: .pause,
-                           startAnimationTime: nil,
-                           viewPosition: [viewModel.viewPosition, viewModel.textPosition])
-            
-            
-            
+            isRestoreAnimation = true
+            isPause = true
+            pauseLabel.isHidden = false
+ 
         }
     }
     
