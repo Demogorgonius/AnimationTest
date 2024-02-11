@@ -16,4 +16,5 @@ struct ViewModel: Codable {
     var duration: TimeInterval
     var remainingDuration: TimeInterval
     var theRestOfTheCountdown: Int
+    var alpha: CGFloat
 }
