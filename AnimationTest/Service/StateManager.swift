@@ -17,6 +17,7 @@ protocol StateManagerProtocol: AnyObject {
                    restTime: Int,
                    duration: TimeInterval,
                    remainingDuration: TimeInterval,
+                   alpha: CGFloat,
                    completion: @escaping(Result<ViewModel, Error>) -> Void)
     
     func resumeState( completion: @escaping(Result<ViewModel, Error>) -> Void )
@@ -38,6 +39,7 @@ class StateManager: StateManagerProtocol {
                    restTime: Int,
                    duration: TimeInterval,
                    remainingDuration: TimeInterval,
+                   alpha: CGFloat,
                    completion: @escaping(Result<ViewModel, Error>) -> Void) {
         
         let encoder = JSONEncoder()
@@ -48,7 +50,8 @@ class StateManager: StateManagerProtocol {
                                     textColor: fColor,
                                     duration: duration,
                                     remainingDuration: remainingDuration,
-                                    theRestOfTheCountdown: restTime)
+                                    theRestOfTheCountdown: restTime,
+                                    alpha: alpha)
         
         if let encoded = try? encoder.encode(currentView) {
             

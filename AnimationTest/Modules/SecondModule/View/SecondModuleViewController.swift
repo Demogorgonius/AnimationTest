@@ -159,14 +159,14 @@ class SecondModuleViewController: UIViewController {
             }
             
             let duration = getDuration(stopAnimationTime: pauseAnimationTimerEnd, startAnimationTime: animationTimerStart, durationType: .exit)
-            
             presenter.saveState(vPosition: getViewCoordinate(view: colorView),
                                 tPosition: getViewCoordinate(view: colorLabel),
                                 bColor: ColorViewFactory().getCurentIndex(colorView.backgroundColor ?? .red),
                                 fColor: ColorLabelFactory().getCurentIndex(colorLabel.text ?? "красный"),
                                 restTime: totalTime,
                                 duration: viewMoveTime,
-                                remainingDuration: duration)
+                                remainingDuration: duration,
+                                alpha: colorView.alpha)
         }
         if exitByTimer == true {
             presenter.deleteState()
@@ -269,8 +269,12 @@ class SecondModuleViewController: UIViewController {
         var duration: Double = 0.0
         
         if repeated < 0 { return }
-        colorView.alpha = 1
-        colorLabel.alpha = 1
+        if isRestoreAnimation == true {
+            isRestoreAnimation = false
+        } else {
+            colorView.alpha = 1
+            colorLabel.alpha = 1
+        }
         if viewPosition == nil {
             setViewPosition(colorView, colorLabel)
         }
@@ -532,7 +536,6 @@ extension SecondModuleViewController {
                 viewModel = presenter.viewModel
                 guard let viewModel = viewModel else { return }
                 timerStart()
-                isRestoreAnimation = false
                 isPause = false
                 startAnimation(repeated: 1000,
                                moveViewTime: viewModel.remainingDuration,
@@ -629,6 +632,8 @@ extension SecondModuleViewController: SecondModuleViewProtocol {
             colorLabel.text = ColorLabelFactory().getColor(viewModel.textColor)
             totalTime = viewModel.theRestOfTheCountdown
             viewMoveTime = viewModel.duration
+            colorView.alpha = viewModel.alpha
+            colorLabel.alpha = viewModel.alpha
             isRestoreAnimation = true
             isPause = true
             pauseLabel.isHidden = false

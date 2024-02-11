@@ -25,7 +25,8 @@ protocol SecondModulePresenterProtocol: AnyObject {
                    fColor: Int,
                    restTime: Int,
                    duration: TimeInterval,
-                   remainingDuration: TimeInterval)
+                   remainingDuration: TimeInterval,
+                   alpha: CGFloat)
     func setView()
     func deleteState()
     var viewModel: ViewModel? {get set}
@@ -66,7 +67,8 @@ class SecondModulePresenter: SecondModulePresenterProtocol {
                    fColor: Int,
                    restTime: Int,
                    duration: TimeInterval,
-                   remainingDuration: TimeInterval) {
+                   remainingDuration: TimeInterval,
+                   alpha: CGFloat) {
         
         stateManager.saveState(vPosition: vPosition,
                                tPosition: tPosition,
@@ -74,7 +76,8 @@ class SecondModulePresenter: SecondModulePresenterProtocol {
                                fColor: fColor,
                                restTime: restTime,
                                duration: duration,
-                               remainingDuration: remainingDuration) { [weak self] result in
+                               remainingDuration: remainingDuration,
+                               alpha: alpha) { [weak self] result in
                                
             guard let self = self else { return }
             switch result {
