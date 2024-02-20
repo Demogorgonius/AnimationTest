@@ -9,14 +9,7 @@ import Foundation
 import UIKit
 import SnapKit
 
-enum DurationType {
-    
-    case pause
-    case changeSpeed
-    case normal
-    case exit
-    
-}
+
 
 class SecondModuleViewController: UIViewController {
     
@@ -25,6 +18,7 @@ class SecondModuleViewController: UIViewController {
     
     var viewAnimator: UIViewPropertyAnimator?
     var viewAlphaAnimator: ObservableUIViewPropertyAnimator?
+    var gameService: GameServiceProtocol!
     //MARK: - Timer settings
     var timer: Timer?
     var totalTime = 30

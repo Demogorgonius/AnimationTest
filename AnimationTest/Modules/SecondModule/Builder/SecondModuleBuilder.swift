@@ -28,8 +28,10 @@ class SecondModuleBuilder: SecondModuleBuilderProtocol {
         let vc = SecondModuleViewController()
         let router = SecondModuleRouter(navigationVC: navigationVC)
         let stateManager = StateManager()
+        let gameService = GameService()
         let presenter = SecondModulePresenter(view: vc, router: router, stateManager: stateManager, resumeAnimation: resumeAnimation)
         vc.presenter = presenter
+        vc.gameService = gameService
         return vc
     }
     
