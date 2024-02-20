@@ -20,6 +20,7 @@
 		A517CEDD2B6A579A00887665 /* ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A517CEDC2B6A579A00887665 /* ViewModel.swift */; };
 		A517CEDF2B6B641900887665 /* ErrorsList.swift in Sources */ = {isa = PBXBuildFile; fileRef = A517CEDE2B6B641900887665 /* ErrorsList.swift */; };
 		A517CEE12B6CAE4500887665 /* StateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A517CEE02B6CAE4500887665 /* StateManager.swift */; };
+		A53BEDC12B82B85700583DA2 /* GameAnimateService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A53BEDC02B82B85700583DA2 /* GameAnimateService.swift */; };
 		A5DAD8852B40ABD200FDED74 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5DAD8842B40ABD200FDED74 /* AppDelegate.swift */; };
 		A5DAD8872B40ABD200FDED74 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5DAD8862B40ABD200FDED74 /* SceneDelegate.swift */; };
 		A5DAD88E2B40ABD400FDED74 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A5DAD88D2B40ABD400FDED74 /* Assets.xcassets */; };
@@ -42,6 +43,7 @@
 		A517CEDC2B6A579A00887665 /* ViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewModel.swift; sourceTree = "<group>"; };
 		A517CEDE2B6B641900887665 /* ErrorsList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorsList.swift; sourceTree = "<group>"; };
 		A517CEE02B6CAE4500887665 /* StateManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StateManager.swift; sourceTree = "<group>"; };
+		A53BEDC02B82B85700583DA2 /* GameAnimateService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameAnimateService.swift; sourceTree = "<group>"; };
 		A5DAD8812B40ABD200FDED74 /* AnimationTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AnimationTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A5DAD8842B40ABD200FDED74 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		A5DAD8862B40ABD200FDED74 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -76,6 +78,7 @@
 				A517CED92B69964000887665 /* ObserveableUIViewPropertyAnimator.swift */,
 				A517CEDE2B6B641900887665 /* ErrorsList.swift */,
 				A517CEE02B6CAE4500887665 /* StateManager.swift */,
+				A53BEDC02B82B85700583DA2 /* GameAnimateService.swift */,
 			);
 			path = Service;
 			sourceTree = "<group>";
@@ -312,6 +315,7 @@
 				A517CEC82B41EB8C00887665 /* SecondModuleBuilder.swift in Sources */,
 				A517CED82B5BE9AE00887665 /* CustomTimer.swift in Sources */,
 				A517CEDD2B6A579A00887665 /* ViewModel.swift in Sources */,
+				A53BEDC12B82B85700583DA2 /* GameAnimateService.swift in Sources */,
 				A517CED42B4314CA00887665 /* ViewFactory.swift in Sources */,
 				A517CED62B47406600887665 /* LabelFactory.swift in Sources */,
 				A5DAD8872B40ABD200FDED74 /* SceneDelegate.swift in Sources */,
