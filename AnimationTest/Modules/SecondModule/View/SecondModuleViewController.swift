@@ -14,36 +14,25 @@ import SnapKit
 class SecondModuleViewController: UIViewController {
     
     //MARK: - Injection
-    var presenter: SecondModulePresenterProtocol!
     
-    var viewAnimator: UIViewPropertyAnimator?
-    var viewAlphaAnimator: ObservableUIViewPropertyAnimator?
+    var viewModel: ViewModel?
+    var presenter: SecondModulePresenterProtocol!
     var gameService: GameServiceProtocol!
+    
     //MARK: - Timer settings
+    
     var timer: Timer?
     var totalTime = 30
     var secondPassed = 0
     var elapsedTime: Int?
     
-    //MARK: - Animation settings
-    var viewModel: ViewModel?
-    var viewMoveTime = TimeInterval(3.0)
-    var newViewMoveTime = TimeInterval(0.0)
-    var countOfRepeats: Int = 1000
-    var animationTimerStart, animationTimerEnd, pauseAnimationTimerEnd, pauseAnimationTimerStart, speedDimensionAnimationStart: DispatchTime?
-    var speedButtonTap: Bool = false
-    var lastPauseDuration: TimeInterval = 0.0
-    var pastTimeChangeSpeedAnimation: TimeInterval = 0.0
-    var currentDuration: TimeInterval = 0.0
-    var isAlphaAnimationStarting: Bool = false
-    
     //MARK: - Services variables
+    
     var isPause: Bool = false
     var exitByTimer: Bool = false
-    var isRestoreAnimation: Bool = false
        
-    
     //MARK: - User interface
+    
     lazy var colorView: UIView = {
         
         let view = ColorViewFactory.createShadowView().shadowColorView
@@ -145,20 +134,22 @@ class SecondModuleViewController: UIViewController {
             if isPause == false {
                 
                 totalTime -= secondPassed
-                pauseAnimationTimerEnd = DispatchTime.now()
+                gameService.pauseAnimationTimerEnd = DispatchTime.now()
                 timer?.invalidate()
-                viewAnimator?.stopAnimation(true)
-                viewAlphaAnimator?.stopAnimation(true)
+                gameService.viewAnimator?.stopAnimation(true)
+                gameService.viewAlphaAnimator?.stopAnimation(true)
                 
             }
             
-            let duration = getDuration(stopAnimationTime: pauseAnimationTimerEnd, startAnimationTime: animationTimerStart, durationType: .exit)
-            presenter.saveState(vPosition: getViewCoordinate(view: colorView),
-                                tPosition: getViewCoordinate(view: colorLabel),
+            let duration = gameService.getDuration(stopAnimationTime: gameService.pauseAnimationTimerEnd, 
+                                                   startAnimationTime: gameService.animationTimerStart,
+                                                   durationType: .exit)
+            presenter.saveState(vPosition: gameService.getViewCoordinate(view: colorView),
+                                tPosition: gameService.getViewCoordinate(view: colorLabel),
                                 bColor: ColorViewFactory().getCurentIndex(colorView.backgroundColor ?? .red),
                                 fColor: ColorLabelFactory().getCurentIndex(colorLabel.text ?? "красный"),
                                 restTime: totalTime,
-                                duration: viewMoveTime,
+                                duration: gameService.viewMoveTime,
                                 remainingDuration: duration,
                                 alpha: colorView.alpha)
         }
@@ -230,7 +221,13 @@ class SecondModuleViewController: UIViewController {
         timer = Timer.scheduledTimer(timeInterval: 1.0, target:  self, selector: #selector(updateTimer), userInfo: nil, repeats: true)
         
         if isPause != true && presenter.resumeAnimation != true {
-            startAnimation(repeated: countOfRepeats, moveViewTime: viewMoveTime, durationType: .normal, startAnimationTime: nil, viewPosition: nil)
+            gameService.startAnimation(colorView: colorView, 
+                                       colorLabel: colorLabel,
+                                       repeated: gameService.countOfRepeats,
+                                       moveViewTime: gameService.viewMoveTime,
+                                       durationType: .normal,
+                                       startAnimationTime: nil,
+                                       viewPosition: nil)
         }
         
     }
@@ -246,174 +243,12 @@ class SecondModuleViewController: UIViewController {
             
             timer!.invalidate()
             timer = nil
-            viewAnimator?.stopAnimation(true)
-            viewAlphaAnimator?.stopAnimation(true)
+            gameService.viewAnimator?.stopAnimation(true)
+            gameService.viewAlphaAnimator?.stopAnimation(true)
             exitByTimer = true
             presenter.goToStartScreen()
             
         }
-        
-    }
-    
-    //MARK: - Animation methods
-    
-    
-    func startAnimation(repeated: Int, moveViewTime: TimeInterval, durationType: DurationType, startAnimationTime: DispatchTime?, viewPosition: [CGRect]?) {
-        
-        var duration: Double = 0.0
-        
-        if repeated < 0 { return }
-        if isRestoreAnimation == true {
-            isRestoreAnimation = false
-        } else {
-            colorView.alpha = 1
-            colorLabel.alpha = 1
-        }
-        if viewPosition == nil {
-            setViewPosition(colorView, colorLabel)
-        }
-
-        var fadeStart = moveViewTime - moveViewTime/4
-        switch durationType {
-        case .pause:
-            pauseAnimationTimerStart = DispatchTime.now()
-            speedDimensionAnimationStart = DispatchTime.now()
-            duration  = moveViewTime
-            currentDuration = duration
-            
-        case .changeSpeed:
-            speedDimensionAnimationStart = DispatchTime.now()
-            pauseAnimationTimerStart = DispatchTime.now()
-            duration = moveViewTime
-            currentDuration = duration
-            
-        case .normal:
-            animationTimerStart = DispatchTime.now()
-            lastPauseDuration = 0.0
-            pastTimeChangeSpeedAnimation = 0.0
-            pauseAnimationTimerStart = nil
-            speedDimensionAnimationStart = nil
-            duration = viewMoveTime
-            currentDuration = duration
-        case .exit:
-            print("exit")
-        }
-
-        viewAnimator = UIViewPropertyAnimator(duration: TimeInterval(duration), curve: .linear) { [weak self] in
-            
-            guard let self = self else { return }
-            self.moveViewToTop(self.colorView, self.colorLabel)
-            
-        }
-        
-        viewAlphaAnimator = ObservableUIViewPropertyAnimator(duration: TimeInterval(duration/4), curve: .easeIn) {[weak self] in
-            
-            guard let self = self else { return }
-           
-            self.fadeOutView(self.colorView, self.colorLabel)
-           
-
-        }
-        
-        viewAnimator?.addAnimations { [weak self] in
-            
-            guard let self = self else { return }
-            if durationType == .changeSpeed {
-                viewMoveTime = newViewMoveTime
-            }
-            fadeStart = moveViewTime - moveViewTime/4
-            if fadeStart <= 0 {
-                fadeStart = 0.1
-                print("WARNING!!!!")
-            }
-            viewAlphaAnimator?.startAnimation(afterDelay: fadeStart)
-            
-        }
-        
-        
-        
-        viewAlphaAnimator?.addCompletion { [weak self] _ in
-           
-            guard let self = self else { return }
-            self.colorView.alpha = 0
-            self.colorLabel.alpha = 0
-            self.colorView.backgroundColor = ColorViewFactory().getRandomColor()
-            self.colorLabel.text = ColorLabelFactory().getRandomColor()
-            if durationType == .changeSpeed {
-                viewMoveTime = newViewMoveTime
-                newViewMoveTime = 0.0
-            }
-            speedDimensionAnimationStart = nil
-            duration = viewMoveTime
-            isAlphaAnimationStarting = false
-            self.startAnimation(repeated: repeated - 1, moveViewTime: duration, durationType: .normal, startAnimationTime: nil, viewPosition: nil)
-            
-        }
-        
-        viewAlphaAnimator?.onFractionCompleteUpdated = { fractionComplete in
-            if fractionComplete != 0.0 {
-                self.isAlphaAnimationStarting = true
-            }
-        }
-        
-        viewAnimator?.startAnimation()
-
-    }
-    
-    func moveViewToTop(_ view: UIView, _ label: UILabel) {
-        
-        view.frame = CGRect(
-            x: view.frame.origin.x,
-            y: 0.0,
-            width: 200,
-            height: 70
-        )
-        label.frame = CGRect(
-            x: label.frame.origin.x,
-            y: 0.0,
-            width: 200,
-            height: 70
-        )
-        
-    }
-    
-    func fadeOutView(_ view: UIView, _ label: UILabel) {
-        
-        view.alpha = 0
-        label.alpha = 0
-    
-    }
-    
-    
-    
-    func setViewPosition( _ view: UIView, _ label: UILabel) {
-        
-        view.alpha = 1
-        label.alpha = 1
-        
-        let xPosition = UIScreen.main.bounds.width/2 - Double.random(in: 0...200)
-        let yPosition = UIScreen.main.bounds.height - 100.0
-        view.frame = CGRect(
-            x: xPosition,
-            y: yPosition,
-            width: 200,
-            height: 70
-        )
-        
-        
-        
-        label.frame = CGRect(
-            x: 0.0,
-            y: 0.0,
-            width: 200,
-            height: 70
-        )
-        
-    }
-    
-    func getViewCoordinate(view: UIView) -> CGRect {
-        
-        return CGRect(origin: view.frame.origin, size: view.frame.size)
         
     }
     
@@ -422,92 +257,7 @@ class SecondModuleViewController: UIViewController {
 //MARK: - Extensions
 
 extension SecondModuleViewController {
-    
-//MARK: - Resume animation method
-    
-    func getDuration(stopAnimationTime: DispatchTime?, startAnimationTime: DispatchTime?, durationType: DurationType) -> TimeInterval {
-        
-        guard let animationTimerStart = startAnimationTime else { return 0.0 }
-        animationTimerEnd = stopAnimationTime ?? DispatchTime.now()
-        guard let animationTimerEnd = animationTimerEnd else { return 0.0 }
-        let end = animationTimerEnd.uptimeNanoseconds
-        let start = animationTimerStart.uptimeNanoseconds
-        let time = end - start
-        let dTime = Double(time)
-        let secTime = dTime/1000000000.00
-        var duration: TimeInterval = viewMoveTime - secTime
-        
-        switch durationType {
-        case .pause:
-            
-            if let pauseAnimationTimerStart = pauseAnimationTimerStart {
-                
-                let start = pauseAnimationTimerStart.uptimeNanoseconds
-                let time = end - start
-                let dTime = Double(time)
-                let secTime = dTime/1000000000.00
-                duration = viewMoveTime - (lastPauseDuration + secTime )
-                lastPauseDuration += secTime
-        
-            }
-            
-            if lastPauseDuration == 0.0 {
-                lastPauseDuration += secTime
-            }
-            
-        case .changeSpeed:
-            if let speedDimensionAnimationStart = startAnimationTime {
-                
-                let start = speedDimensionAnimationStart.uptimeNanoseconds
-                let time = end - start
-                let dTime = Double(time)
-                let secTime = dTime/1000000000.00
-                let speedDuration = viewMoveTime - (pastTimeChangeSpeedAnimation + secTime )
-                pastTimeChangeSpeedAnimation += secTime
-                duration = speedDuration*(newViewMoveTime*100/viewMoveTime)/100
-                
-        
-            }
-            
-            if pastTimeChangeSpeedAnimation == 0.0 {
-                pastTimeChangeSpeedAnimation += secTime
-            }
-    
-        case .normal:
-            print("normal duration.")
-        case .exit:
-            if let pauseAnimationTimerStart = pauseAnimationTimerStart {
-                
-                let start = pauseAnimationTimerStart.uptimeNanoseconds
-                let time = end - start
-                let dTime = Double(time)
-                let secTime = dTime/1000000000.00
-                duration = viewMoveTime - (lastPauseDuration + secTime )
-                lastPauseDuration += secTime
-        
-            }
-            
-            if lastPauseDuration == 0.0 {
-                lastPauseDuration += secTime
-            }
-        }
-        
-        return duration
-        
-    }
-    
-    func resumeAnimation(stopAnimationTime: DispatchTime?, startAnimationTime: DispatchTime?, durationType: DurationType) {
-        
-        let duration = getDuration(stopAnimationTime: stopAnimationTime, startAnimationTime: startAnimationTime, durationType: durationType)
-        
-        let positionOfView = [getViewCoordinate(view: colorView), getViewCoordinate(view: colorLabel)]
-        startAnimation(repeated: countOfRepeats,
-                       moveViewTime: duration,
-                       durationType: durationType,
-                       startAnimationTime: startAnimationTime,
-                       viewPosition: positionOfView)
-        
-    }
+
     
 //MARK: - @objc methods
     
@@ -516,31 +266,40 @@ extension SecondModuleViewController {
         if isPause == false {
             
             totalTime -= secondPassed
-            pauseAnimationTimerEnd = DispatchTime.now()
+            gameService.pauseAnimationTimerEnd = DispatchTime.now()
             timer?.invalidate()
-            viewAnimator?.stopAnimation(true)
-            viewAlphaAnimator?.stopAnimation(true)
+            gameService.viewAnimator?.stopAnimation(true)
+            gameService.viewAlphaAnimator?.stopAnimation(true)
             pauseLabel.isHidden = false
             isPause = true
             
         } else {
             
             pauseLabel.isHidden = true
-            if isRestoreAnimation == true {
+            if gameService.isRestoreAnimation == true {
+                
                 viewModel = presenter.viewModel
                 guard let viewModel = viewModel else { return }
                 timerStart()
                 isPause = false
-                startAnimation(repeated: 1000,
-                               moveViewTime: viewModel.remainingDuration,
-                               durationType: .pause,
-                               startAnimationTime: nil,
-                               viewPosition: [viewModel.viewPosition, viewModel.textPosition])
+                gameService.startAnimation(colorView: colorView, 
+                                           colorLabel: colorLabel,
+                                           repeated: 1000,
+                                           moveViewTime: viewModel.remainingDuration,
+                                           durationType: .pause,
+                                           startAnimationTime: nil,
+                                           viewPosition: [viewModel.viewPosition, viewModel.textPosition])
+
             } else {
                 
                 timerStart()
                 isPause = false
-                resumeAnimation(stopAnimationTime: pauseAnimationTimerEnd, startAnimationTime: animationTimerStart, durationType: .pause)
+                gameService.resumeAnimation(colorView: colorView, 
+                                            colorLabel: colorLabel,
+                                            stopAnimationTime: gameService.pauseAnimationTimerEnd,
+                                            startAnimationTime: gameService.animationTimerStart,
+                                            durationType: .pause)
+
                 
             }
             
@@ -550,51 +309,59 @@ extension SecondModuleViewController {
     }
     
     @objc func speedButtonTapped(_ sender: UIButton) {
-        guard let viewAnimator = viewAnimator else { return }
+        guard let viewAnimator = gameService.viewAnimator else { return }
         
         if viewAnimator.isRunning == false {
             return
         }
-        if isAlphaAnimationStarting == true {
+        if gameService.isAlphaAnimationStarting == true {
             print("Alpha animation starting! Can't change speed animation!!!")
             return
         }
-        if viewMoveTime > 0.5 {
-            newViewMoveTime = viewMoveTime - TimeInterval(0.5)
+        if gameService.viewMoveTime > 0.5 {
+            gameService.newViewMoveTime = gameService.viewMoveTime - TimeInterval(0.5)
         } else {
             return
         }
         
-        var start = animationTimerStart
-        if speedDimensionAnimationStart != nil {
-            start = speedDimensionAnimationStart
+        var start = gameService.animationTimerStart
+        if gameService.speedDimensionAnimationStart != nil {
+            start = gameService.speedDimensionAnimationStart
         }
         
         viewAnimator.stopAnimation(true)
-        viewAlphaAnimator?.stopAnimation(true)
-        animationTimerEnd = DispatchTime.now()
-        resumeAnimation(stopAnimationTime: nil, startAnimationTime: start, durationType: .changeSpeed)
+        gameService.viewAlphaAnimator?.stopAnimation(true)
+        gameService.animationTimerEnd = DispatchTime.now()
+        gameService.resumeAnimation(colorView: colorView, 
+                                    colorLabel: colorLabel,
+                                    stopAnimationTime: nil,
+                                    startAnimationTime: start,
+                                    durationType: .changeSpeed)
         
     }
         
     @objc func speedReductionButtonTapped(_ sender: UIButton) {
-        guard let viewAnimator = viewAnimator else { return }
+        guard let viewAnimator = gameService.viewAnimator else { return }
         if viewAnimator.isRunning == false {
             return
         }
-        if isAlphaAnimationStarting == true {
+        if gameService.isAlphaAnimationStarting == true {
             print("Alpha animation starting! Can't change speed animation!!!")
             return
         }
-        var start = animationTimerStart
-        if speedDimensionAnimationStart != nil {
-            start = speedDimensionAnimationStart
+        var start = gameService.animationTimerStart
+        if gameService.speedDimensionAnimationStart != nil {
+            start = gameService.speedDimensionAnimationStart
         }
-        newViewMoveTime = viewMoveTime + TimeInterval(0.5)
+        gameService.newViewMoveTime = gameService.viewMoveTime + TimeInterval(0.5)
         viewAnimator.stopAnimation(true)
-        viewAlphaAnimator?.stopAnimation(true)
-        animationTimerEnd = DispatchTime.now()
-        resumeAnimation(stopAnimationTime: nil, startAnimationTime: start, durationType: .changeSpeed)
+        gameService.viewAlphaAnimator?.stopAnimation(true)
+        gameService.animationTimerEnd = DispatchTime.now()
+        gameService.resumeAnimation(colorView: colorView, 
+                                    colorLabel: colorLabel,
+                                    stopAnimationTime: nil,
+                                    startAnimationTime: start,
+                                    durationType: .changeSpeed)
         
     }
     
@@ -625,10 +392,10 @@ extension SecondModuleViewController: SecondModuleViewProtocol {
             colorView.backgroundColor = ColorViewFactory().getColor(viewModel.backgroundColor)
             colorLabel.text = ColorLabelFactory().getColor(viewModel.textColor)
             totalTime = viewModel.theRestOfTheCountdown
-            viewMoveTime = viewModel.duration
+            gameService.viewMoveTime = viewModel.duration
             colorView.alpha = viewModel.alpha
             colorLabel.alpha = viewModel.alpha
-            isRestoreAnimation = true
+            gameService.isRestoreAnimation = true
             isPause = true
             pauseLabel.isHidden = false
  

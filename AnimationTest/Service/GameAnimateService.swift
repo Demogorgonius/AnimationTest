@@ -18,7 +18,19 @@ enum DurationType {
 }
 
 protocol GameServiceProtocol: AnyObject {
-    
+    var countOfRepeats: Int { get set }
+    var viewAnimator: UIViewPropertyAnimator? {get set}
+    var viewAlphaAnimator: ObservableUIViewPropertyAnimator? {get set}
+    var animationTimerStart: DispatchTime? {get set}
+    var animationTimerEnd: DispatchTime? {get set}
+    var pauseAnimationTimerEnd: DispatchTime? {get set}
+    var pauseAnimationTimerStart: DispatchTime? {get set}
+    var speedDimensionAnimationStart: DispatchTime? {get set}
+    var viewMoveTime: TimeInterval {get set}
+    var newViewMoveTime: TimeInterval {get set}
+    var isAlphaAnimationStarting: Bool {get set}
+    var isRestoreAnimation: Bool {get set}
+    var speedButtonTap: Bool {get set}
     func startAnimation(colorView: UIView, colorLabel: UILabel, repeated: Int, moveViewTime: TimeInterval, durationType: DurationType, startAnimationTime: DispatchTime?, viewPosition: [CGRect]?)
     func moveViewToTop(_ view: UIView, _ label: UILabel)
     func setViewPosition( _ view: UIView, _ label: UILabel)
@@ -32,8 +44,6 @@ class GameService: GameServiceProtocol {
     
     var viewAnimator: UIViewPropertyAnimator?
     var viewAlphaAnimator: ObservableUIViewPropertyAnimator?
-    
-    var viewModel: ViewModel?
     var viewMoveTime = TimeInterval(3.0)
     var newViewMoveTime = TimeInterval(0.0)
     var countOfRepeats: Int = 1000
@@ -56,7 +66,7 @@ class GameService: GameServiceProtocol {
         if repeated < 0 { return }
         if isRestoreAnimation == true {
             isRestoreAnimation = false
-        } else {
+        } else if durationType != .pause {
             colorView.alpha = 1
             colorLabel.alpha = 1
         }
@@ -137,7 +147,13 @@ class GameService: GameServiceProtocol {
             speedDimensionAnimationStart = nil
             duration = viewMoveTime
             isAlphaAnimationStarting = false
-            startAnimation(colorView: colorView, colorLabel: colorLabel, repeated: repeated - 1, moveViewTime: duration, durationType: .normal, startAnimationTime: nil, viewPosition: nil)
+            startAnimation(colorView: colorView, 
+                           colorLabel: colorLabel,
+                           repeated: repeated - 1,
+                           moveViewTime: duration,
+                           durationType: .normal,
+                           startAnimationTime: nil,
+                           viewPosition: nil)
             
         }
         
@@ -281,10 +297,14 @@ class GameService: GameServiceProtocol {
     
     func resumeAnimation(colorView: UIView, colorLabel: UILabel, stopAnimationTime: DispatchTime?, startAnimationTime: DispatchTime?, durationType: DurationType) {
         
-        let duration = getDuration(stopAnimationTime: stopAnimationTime, startAnimationTime: startAnimationTime, durationType: durationType)
+        let duration = getDuration(stopAnimationTime: stopAnimationTime, 
+                                   startAnimationTime: startAnimationTime,
+                                   durationType: durationType)
         
         let positionOfView = [getViewCoordinate(view: colorView), getViewCoordinate(view: colorLabel)]
-        startAnimation(colorView: colorView, colorLabel: colorLabel, repeated: countOfRepeats,
+        startAnimation(colorView: colorView, 
+                       colorLabel: colorLabel,
+                       repeated: countOfRepeats,
                        moveViewTime: duration,
                        durationType: durationType,
                        startAnimationTime: startAnimationTime,
