@@ -26,16 +26,11 @@ class SecondModuleViewController: UIViewController {
     var secondPassed = 0
     var elapsedTime: Int?
     
-
-
-    
     //MARK: - Services variables
     
     var isPause: Bool = false
     var exitByTimer: Bool = false
-    var isRestoreAnimation: Bool = false
        
-    
     //MARK: - User interface
     
     lazy var colorView: UIView = {
@@ -146,7 +141,9 @@ class SecondModuleViewController: UIViewController {
                 
             }
             
-            let duration = gameService.getDuration(stopAnimationTime: gameService.pauseAnimationTimerEnd, startAnimationTime: gameService.animationTimerStart, durationType: .exit)
+            let duration = gameService.getDuration(stopAnimationTime: gameService.pauseAnimationTimerEnd, 
+                                                   startAnimationTime: gameService.animationTimerStart,
+                                                   durationType: .exit)
             presenter.saveState(vPosition: gameService.getViewCoordinate(view: colorView),
                                 tPosition: gameService.getViewCoordinate(view: colorLabel),
                                 bColor: ColorViewFactory().getCurentIndex(colorView.backgroundColor ?? .red),
@@ -224,7 +221,13 @@ class SecondModuleViewController: UIViewController {
         timer = Timer.scheduledTimer(timeInterval: 1.0, target:  self, selector: #selector(updateTimer), userInfo: nil, repeats: true)
         
         if isPause != true && presenter.resumeAnimation != true {
-            gameService.startAnimation(colorView: colorView, colorLabel: colorLabel, repeated: gameService.countOfRepeats, moveViewTime: gameService.viewMoveTime, durationType: .normal, startAnimationTime: nil, viewPosition: nil)
+            gameService.startAnimation(colorView: colorView, 
+                                       colorLabel: colorLabel,
+                                       repeated: gameService.countOfRepeats,
+                                       moveViewTime: gameService.viewMoveTime,
+                                       durationType: .normal,
+                                       startAnimationTime: nil,
+                                       viewPosition: nil)
         }
         
     }
@@ -273,19 +276,29 @@ extension SecondModuleViewController {
         } else {
             
             pauseLabel.isHidden = true
-            if isRestoreAnimation == true {
+            if gameService.isRestoreAnimation == true {
                 
                 viewModel = presenter.viewModel
                 guard let viewModel = viewModel else { return }
                 timerStart()
                 isPause = false
-                gameService.startAnimation(colorView: colorView, colorLabel: colorLabel, repeated: 1000, moveViewTime: viewModel.remainingDuration, durationType: .pause, startAnimationTime: nil, viewPosition: [viewModel.viewPosition, viewModel.textPosition])
+                gameService.startAnimation(colorView: colorView, 
+                                           colorLabel: colorLabel,
+                                           repeated: 1000,
+                                           moveViewTime: viewModel.remainingDuration,
+                                           durationType: .pause,
+                                           startAnimationTime: nil,
+                                           viewPosition: [viewModel.viewPosition, viewModel.textPosition])
 
             } else {
                 
                 timerStart()
                 isPause = false
-                gameService.resumeAnimation(colorView: colorView, colorLabel: colorLabel, stopAnimationTime: gameService.pauseAnimationTimerEnd, startAnimationTime: gameService.animationTimerStart, durationType: .pause)
+                gameService.resumeAnimation(colorView: colorView, 
+                                            colorLabel: colorLabel,
+                                            stopAnimationTime: gameService.pauseAnimationTimerEnd,
+                                            startAnimationTime: gameService.animationTimerStart,
+                                            durationType: .pause)
 
                 
             }
@@ -319,7 +332,11 @@ extension SecondModuleViewController {
         viewAnimator.stopAnimation(true)
         gameService.viewAlphaAnimator?.stopAnimation(true)
         gameService.animationTimerEnd = DispatchTime.now()
-        gameService.resumeAnimation(colorView: colorView, colorLabel: colorLabel, stopAnimationTime: nil, startAnimationTime: start, durationType: .changeSpeed)
+        gameService.resumeAnimation(colorView: colorView, 
+                                    colorLabel: colorLabel,
+                                    stopAnimationTime: nil,
+                                    startAnimationTime: start,
+                                    durationType: .changeSpeed)
         
     }
         
@@ -340,7 +357,11 @@ extension SecondModuleViewController {
         viewAnimator.stopAnimation(true)
         gameService.viewAlphaAnimator?.stopAnimation(true)
         gameService.animationTimerEnd = DispatchTime.now()
-        gameService.resumeAnimation(colorView: colorView, colorLabel: colorLabel, stopAnimationTime: nil, startAnimationTime: start, durationType: .changeSpeed)
+        gameService.resumeAnimation(colorView: colorView, 
+                                    colorLabel: colorLabel,
+                                    stopAnimationTime: nil,
+                                    startAnimationTime: start,
+                                    durationType: .changeSpeed)
         
     }
     
@@ -374,7 +395,7 @@ extension SecondModuleViewController: SecondModuleViewProtocol {
             gameService.viewMoveTime = viewModel.duration
             colorView.alpha = viewModel.alpha
             colorLabel.alpha = viewModel.alpha
-            isRestoreAnimation = true
+            gameService.isRestoreAnimation = true
             isPause = true
             pauseLabel.isHidden = false
  
