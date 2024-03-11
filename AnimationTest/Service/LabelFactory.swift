@@ -24,7 +24,7 @@ extension UILabel: ColorLabel {
 
 class ColorLabelFactory {
 
-    let colours: [String] = ["красный", "серый", "чёрный", "синий", "коричневый", "фиолетовый"]
+    let colours: [String] = ["красный", "серый", "чёрный", "синий", "коричневый", "фиолетовый", "зелёный"]
     
     static func createShadowLabel() -> ColorLabel {
         let label = UILabel()

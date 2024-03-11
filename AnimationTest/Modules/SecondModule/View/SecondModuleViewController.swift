@@ -211,6 +211,21 @@ class SecondModuleViewController: UIViewController {
         speedReductionButton.addTarget(self, action: #selector(speedReductionButtonTapped), for: .touchUpInside)
     }
     
+    func makeColorButtons() {
+        var buttons: [ColorButton] = []
+        var tag: Int = 0
+        for buttonColor in ColorButtonFactory().colors {
+            let button = ColorButtonFactory.makeShadowButton(backgroundColor: buttonColor,
+                                                             title: "",
+                                                             target: self,
+                                                             tag: tag,
+                                                             action: nil)
+            buttons.append(button)
+            tag += 1
+        }
+        
+    }
+    
     //MARK: - Timers methods
     
     func timerStart() {
@@ -337,6 +352,12 @@ extension SecondModuleViewController {
                                     stopAnimationTime: nil,
                                     startAnimationTime: start,
                                     durationType: .changeSpeed)
+        
+    }
+    
+    @objc func colorButtonTapped(_ sender: UIButton) {
+        
+        
         
     }
         
