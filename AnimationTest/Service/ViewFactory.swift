@@ -22,13 +22,14 @@ extension UIView: ColorView {
     
 }
 
+
 class ColorViewFactory {
     
-    let colors: [UIColor] = [.red, .gray, .black, .blue, .brown, .purple]
+    let colors: [UIColor] = [.red, .gray, .black, .blue, .brown, .purple, .green]
     
     static func createShadowView() -> ColorView {
         let view = UIView()
-        view.backgroundColor = .brown
+        view.backgroundColor = Colors.black.colorRowValue
         view.layer.cornerRadius = 15
         view.layer.borderWidth = 1
         view.layer.shadowOffset = CGSize(width: 0, height: 4)
@@ -38,6 +39,8 @@ class ColorViewFactory {
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }
+    
+    
     
     func getRandomColor() -> UIColor {
         
