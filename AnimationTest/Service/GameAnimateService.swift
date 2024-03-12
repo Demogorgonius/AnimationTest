@@ -138,8 +138,8 @@ class GameService: GameServiceProtocol {
             guard let self = self else { return }
             colorView.alpha = 0
             colorLabel.alpha = 0
-            colorView.backgroundColor = ColorViewFactory().getRandomColor()
-            colorLabel.text = ColorLabelFactory().getRandomColor()
+            colorView.backgroundColor = Colors.random.colorRowValue
+            colorLabel.text = Colors.random.colorDescription
             if durationType == .changeSpeed {
                 viewMoveTime = newViewMoveTime
                 newViewMoveTime = 0.0
