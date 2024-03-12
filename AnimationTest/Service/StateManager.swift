@@ -12,8 +12,8 @@ protocol StateManagerProtocol: AnyObject {
     
     func saveState(vPosition: CGRect,
                    tPosition: CGRect,
-                   bColor: Int,
-                   fColor: Int,
+                   bColor: String,
+                   fColor: String,
                    restTime: Int,
                    duration: TimeInterval,
                    remainingDuration: TimeInterval,
@@ -34,8 +34,8 @@ class StateManager: StateManagerProtocol {
     
     func saveState(vPosition: CGRect,
                    tPosition: CGRect,
-                   bColor: Int,
-                   fColor: Int,
+                   bColor: String,
+                   fColor: String,
                    restTime: Int,
                    duration: TimeInterval,
                    remainingDuration: TimeInterval,

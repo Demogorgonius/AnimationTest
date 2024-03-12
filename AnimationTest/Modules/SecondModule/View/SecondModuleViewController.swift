@@ -36,7 +36,7 @@ class SecondModuleViewController: UIViewController {
     lazy var colorView: UIView = {
         
         let view = ColorViewFactory.createShadowView().shadowColorView
-        view.backgroundColor = ColorViewFactory().getRandomColor()
+        view.backgroundColor = Colors.random.colorRowValue
         return view
         
     }()
@@ -44,7 +44,7 @@ class SecondModuleViewController: UIViewController {
     lazy var colorLabel: UILabel = {
         
         let label = ColorLabelFactory.createShadowLabel().shadowColorLabel
-        label.text = ColorLabelFactory().getRandomColor()
+        label.text = Colors.random.colorDescription
         return label
         
     }()
@@ -146,8 +146,8 @@ class SecondModuleViewController: UIViewController {
                                                    durationType: .exit)
             presenter.saveState(vPosition: gameService.getViewCoordinate(view: colorView),
                                 tPosition: gameService.getViewCoordinate(view: colorLabel),
-                                bColor: ColorViewFactory().getCurentIndex(colorView.backgroundColor ?? .red),
-                                fColor: ColorLabelFactory().getCurentIndex(colorLabel.text ?? "красный"),
+                                bColor: Colors.random.returnColorsByColor(colorView.backgroundColor ?? .red).colorDescription,
+                                fColor: Colors.random.returnColorsByText(colorLabel.text ?? "красный").colorDescription,
                                 restTime: totalTime,
                                 duration: gameService.viewMoveTime,
                                 remainingDuration: duration,
@@ -410,8 +410,8 @@ extension SecondModuleViewController: SecondModuleViewProtocol {
             guard let viewModel = viewModel else { return }
             colorView.frame = viewModel.viewPosition
             colorLabel.frame = viewModel.textPosition
-            colorView.backgroundColor = ColorViewFactory().getColor(viewModel.backgroundColor)
-            colorLabel.text = ColorLabelFactory().getColor(viewModel.textColor)
+            colorView.backgroundColor = Colors.random.returnColorsByText(viewModel.backgroundColor).colorRowValue
+            colorLabel.text = Colors.random.returnColorsByText(viewModel.textColor).colorDescription
             totalTime = viewModel.theRestOfTheCountdown
             gameService.viewMoveTime = viewModel.duration
             colorView.alpha = viewModel.alpha
